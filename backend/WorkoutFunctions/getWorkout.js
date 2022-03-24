@@ -1,6 +1,7 @@
 const con = require("../dbScripts/connect");
 const jwt = require("jsonwebtoken");
 const verifyUserAuth = require("../authScripts/verifyUserAuth");
+const MarkSeen = require("../utils/MarkSeen");
 const SECRET_KEY = process.env.SECRET_KEY;
 function getWorkout(req, res) {
   let user;
@@ -20,7 +21,7 @@ function getWorkout(req, res) {
   const SetsSql = "SELECT * FROM sets where ExerSetId in (?)";
   const UserSql = "Select UserName from Users Where UserId=?";
   const CommentSql =
-    "SELECT CommentId,Content,UserId,UserName FROM Comments c join users u " +
+    "SELECT CommentId,Content,UserId,UserName,PostDate FROM Comments c join users u " +
     "on u.UserId=c.CommentorId where c.WorkoutId=? order by CommentId desc";
   let public, title, userId, date, userName;
   const workoutPromise = new Promise((resolve) => {
@@ -40,6 +41,11 @@ function getWorkout(req, res) {
   });
 
   workoutPromise.then(() => {
+    if (userId == tokenUserId) {
+      MarkSeen(workoutID).catch((e) => {
+        console.log(e);
+      });
+    }
     verifyUserAuth(tokenUserId, userId, public)
       .then(() => {
         con.query(ExerSetSql, [workoutID], function (err, result) {

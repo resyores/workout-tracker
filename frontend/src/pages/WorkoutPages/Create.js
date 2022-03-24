@@ -8,7 +8,7 @@ import { useCookies } from "react-cookie";
 import axios from "axios";
 export default function Create() {
   const Navigate = useNavigate();
-  const [cookies, _] = useCookies();
+  const [cookies, _] = useCookies(["user", "token"]);
   let exercises = [];
   const [options, setOptions] = useState([]);
   const [workout, setWorkout] = useState([]);
@@ -24,9 +24,7 @@ export default function Create() {
     console.log(temp);
   }
   function Start() {
-    const token = cookies.token;
-    if (!token) Navigate("/Login", { replace: true });
-    axios.defaults.headers.common["authorization"] = "bearer " + token;
+    axios.defaults.headers.common["authorization"] = "bearer " + cookies.token;
     axios.get("http://10.0.0.19:4000/exercises").then((res) => {
       exercises = res.data;
       setOptions(

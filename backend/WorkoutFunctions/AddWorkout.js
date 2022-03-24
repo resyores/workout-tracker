@@ -21,7 +21,7 @@ function addWorkout(req, res) {
     "(Select column_0 not in(select exerciseid from exercises) as i FROM " +
     "(VALUES ?) my_list)my_table;";
   let workoutSql =
-    "Insert Into Workouts (UserId,public,WorkoutDate,title)  Values (?)";
+    "Insert Into Workouts (UserId,public,WorkoutDate,title,userentered)  Values (?)";
   let exerSetsSql = "Insert Into exercisessets (WorkoutId,ExerciseId) values ?";
   let SetSql = "Insert Into Sets (ExerSetId,Reps,Weight) values ?";
   let exerciseRows = "";
@@ -48,9 +48,10 @@ function addWorkout(req, res) {
     });
   });
   exerciseExistPromise.then(() => {
+    const curDate = new Date();
     con.query(
       workoutSql,
-      [[UserId, public, new Date(), title]],
+      [[UserId, public,curDate, title,curDate]],
       function (err, result) {
         if (err) {
           console.log(err);

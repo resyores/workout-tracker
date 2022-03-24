@@ -10,6 +10,7 @@ const invitesRouter = require("./routes/invites");
 const commentRouter = require("./routes/comment");
 const exercisesRouter = require("./routes/exercises");
 const workoutsRouter = require("./routes/workouts");
+const messagesRouter = require("./routes/messages");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT;
@@ -24,6 +25,7 @@ app.use("/user", userRouter);
 app.use("/friends", friendsRouter);
 app.use("/invites", invitesRouter);
 app.use("/comment", commentRouter);
+app.use("/messages", messagesRouter);
 con.connect(function (err) {
   if (err) {
     return console.error("error: " + err.message);

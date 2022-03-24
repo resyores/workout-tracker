@@ -1,4 +1,5 @@
 import React from "react";
+import FormatDate from "../../utils/FormatDate";
 export default function Comment({ comment }) {
   return (
     <div className="list-group-item rounded  bg-light d-flex py-0">
@@ -10,7 +11,10 @@ export default function Comment({ comment }) {
           {comment.UserName}
         </a>
       </span>
-      <h5 className="mt-3">{comment.Content}</h5>
+      <div>
+        <small className="ms-2">{FormatDate(comment.PostDate)}</small>
+        <h5>{comment.Content}</h5>
+      </div>
     </div>
   );
 }

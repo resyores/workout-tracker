@@ -1,8 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import io from "socket.io-client";
 import Comment from "../RowComponents/Comment";
 import Button from "react-bootstrap/Button";
+const styles = {
+  position: "relative",
+  height: "300px",
+  overflow: "auto",
+  backgroundColor: "#F5F5F5",
+  borderRadius: "10px",
+};
 export default function Comments({ comments, setComments, cookies, id }) {
   const [commentWrite, setCommentWrite] = useState("");
   function postComment() {
@@ -11,19 +17,20 @@ export default function Comments({ comments, setComments, cookies, id }) {
         .post("http://10.0.0.19:4000/comment/" + id, { content: commentWrite })
         .then((res) => {
           setComments([
+            ...comments,
             {
               Content: commentWrite,
               UserName: cookies.user.username,
               UserId: cookies.user.UserID,
+              PostDate: new Date(),
             },
-            ...comments,
           ]);
           setCommentWrite("");
         });
     }
   }
   return (
-    <div id="comments w-100">
+    <div id="comments w-50">
       <>
         <div className="d-flex">
           <input
@@ -35,9 +42,11 @@ export default function Comments({ comments, setComments, cookies, id }) {
             comment
           </Button>
         </div>
-        {comments.map((comment) => {
-          return <Comment comment={comment} />;
-        })}
+        <div className="d-flex flex-column-reverse" style={styles}>
+          {comments.map((comment) => {
+            return <Comment comment={comment} />;
+          })}
+        </div>
       </>
     </div>
   );

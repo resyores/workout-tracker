@@ -6,13 +6,11 @@ import Button from "react-bootstrap/Button";
 import Friend from "../../components/RowComponents/FriendRow";
 export default function Friends() {
   const Navigate = useNavigate();
-  const [cookies, _] = useCookies();
+  const [cookies, _] = useCookies(["user", "token"]);
   const [invites, setInvites] = useState([]);
   useEffect(Start, []);
   function Start() {
-    const token = cookies.token;
-    if (!token) Navigate("/Login", { replace: true });
-    axios.defaults.headers.common["authorization"] = "bearer " + token; // for all requests
+    axios.defaults.headers.common["authorization"] = "bearer " + cookies.token; // for all requests
     axios.get("http://10.0.0.19:4000/invites").then((res) => {
       setInvites(res.data);
     });
@@ -23,7 +21,7 @@ export default function Friends() {
     axios
       .post("http://10.0.0.19:4000/invites/" + InviterId + "/" + action)
       .then((res) => {
-          setInvites(invites.filter((invite) => invite.InviterId != InviterId));
+        setInvites(invites.filter((invite) => invite.InviterId != InviterId));
       });
   }
   if (invites.length)

@@ -5,6 +5,7 @@ import axios from "axios";
 export default function ImageModal({ isOpen, setIsOpen, CurrentImage }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(CurrentImage);
+  const [cameraOpen, setCamerOpen] = useState(false);
   useEffect(() => {
     setImageUrl(CurrentImage);
     setSelectedFile(null);

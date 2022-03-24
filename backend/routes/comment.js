@@ -3,7 +3,8 @@ const con = require("../dbScripts/connect");
 const verifyToken = require("../authScripts/verifyToken");
 const verifyUserAuth = require("../authScripts/verifyUserAuth");
 const jwt = require("jsonwebtoken");
-const { CreateRoom, getRoom } = require("../socketScripts/commentsSocket");
+const { sendMessage, getWorkoutRoom } = require("../socketScripts/commentsSocket");
+const MarkSeen = require("../utils/MarkSeen");
 const SECRET_KEY = process.env.SECRET_KEY;
 router.route("/:WorkoutId").post(verifyToken, (req, res) => {
   let user;
@@ -18,8 +19,7 @@ router.route("/:WorkoutId").post(verifyToken, (req, res) => {
   const WorkoutId = req.params.WorkoutId;
   if (!Content || !WorkoutId) return res.sendStatus(400);
   const commentSql =
-    "Insert into comments (CommentorId,WorkoutId,content) Values (?) ";
-  let userId, public;
+    "Insert into comments (CommentorId,WorkoutId,content,postdate) Values (?) ";
   const workoutPromise = new Promise((resolve) => {
     const WorkoutSql = "Select UserId,public From Workouts Where WorkoutId=?";
     con.query(WorkoutSql, [WorkoutId], (err, result) => {
@@ -28,32 +28,33 @@ router.route("/:WorkoutId").post(verifyToken, (req, res) => {
         return res.sendStatus(500);
       }
       if (result.length == 0) return res.sendStatus(400);
-      userId = result[0].UserId;
-      public = result[0].public;
-      resolve();
+      resolve(result[0].UserId, result[0].public);
     });
   });
 
-  workoutPromise.then(() => {
+  workoutPromise.then((userId, public) => {
     verifyUserAuth(userId, tokenUserId, public)
       .then((isAuth) => {
         if (!isAuth) return res.sendStatus(403);
-        con.query(commentSql, [[tokenUserId, WorkoutId, Content]], (err) => {
-          if (err) {
-            console.log(err);
-            return res.sendStatus(500);
+        con.query(
+          commentSql,
+          [[tokenUserId, WorkoutId, Content, new Date()]],
+          (err) => {
+            if (err) {
+              console.log(err);
+              return res.sendStatus(500);
+            }
+            if (userId == tokenUserId) {
+              MarkSeen(WorkoutId).catch((e) => console.log(e));
+            }
+            res.sendStatus(201);
+            const room = getWorkoutRoom(String(WorkoutId));
+            if (room) {
+               room.sendMessage(Content, user, room.creator);
+              if (room.creatorOnline) MarkSeen(WorkoutId);
+            } else sendMessage(userId, WorkoutId);
           }
-          res.sendStatus(201);
-          console.log(WorkoutId);
-          const room = getRoom(String(WorkoutId));
-          if (!room) return;
-          room.sendMessage(
-            Content,
-            Object.values(room.users).filter(
-              (user) => user.UserID == tokenUserId
-            )[0]
-          );
-        });
+        );
       })
       .catch((err) => {
         res.sendStatus(500);

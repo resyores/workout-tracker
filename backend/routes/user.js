@@ -24,13 +24,20 @@ const upload = multer({ storage });
 const SECRET_KEY = process.env.SECRET_KEY;
 router.route("/:id/workouts").get(verifyToken, (req, res) => {
   let query = "%" + req.query.q + "%";
-  let page = req.query.page || 1;
-  if (!Number.isInteger(Number(page)) || page < 0) {
+  let page = Number(req.query.page || 1);
+  if (!Number.isInteger(page) || page < 1) {
     res.sendStatus(400);
     return;
   }
   page--;
-  let workoutSql =
+  const OwnerWorkoutSql =
+    "Select w.WorkoutId,Title,WorkoutDate,public,count(c.CommentId) as unseen " +
+    "from Workouts w " +
+    "left join comments c on(c.WorkoutId=w.workoutid and c.PostDate>w.userentered and c.CommentorId!=w.userid) " +
+    "where UserId=? and Title Like ? " +
+    "group by workoutid " +
+    "order by unseen desc ,WorkoutDate desc limit ? offset ? ";
+  const FriendworkoutSql =
     "Select WorkoutId,Title,WorkoutDate,public from Workouts where UserId=? and public and Title Like ? order by WorkoutDate desc limit ? offset ?";
   let user;
   jwt.verify(req.token, SECRET_KEY, (err, authData) => {
@@ -40,7 +47,7 @@ router.route("/:id/workouts").get(verifyToken, (req, res) => {
   if (!user) return;
   let UserID = user.UserID;
   let FriendId = req.params.id;
-  if (UserID == FriendId) workoutSql = workoutSql.replace(" and public", "");
+  const workoutSql = UserID == FriendId ? OwnerWorkoutSql : FriendworkoutSql;
   verifyUserAuth(UserID, FriendId)
     .then((isAuth) => {
       if (isAuth) {
@@ -121,12 +128,18 @@ router
     if (!user) return;
     res.sendStatus(200);
   });
-router.route("/profile/:id").get((req, res) => {
+router.route("/:id/profile").get((req, res) => {
   const options = {
     root: path.join(__dirname, "../"),
   };
   if (fs.existsSync("upload/profiles/" + req.params.id + ".jpg", options)) {
     res.sendFile("upload/profiles/" + req.params.id + ".jpg", options);
   } else res.sendStatus(404);
+});
+router.route("/userdata").get(verifyToken, (req, res) => {
+  jwt.verify(req.token, SECRET_KEY, (err, authData) => {
+    if (err) return res.sendStatus(401);
+    res.json(authData.user);
+  });
 });
 module.exports = router;

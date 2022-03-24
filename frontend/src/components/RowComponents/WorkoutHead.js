@@ -1,3 +1,5 @@
+import React from "react";
+import FormatDate from "../../utils/FormatDate";
 export default function WorkoutHead({ props }) {
   return (
     <div class="d-flex justify-content-around w-100 bg-light border border-dark">
@@ -6,15 +8,7 @@ export default function WorkoutHead({ props }) {
           <h1>{props.title + "  "}</h1>
           {props.userNameText()}
         </span>
-        <p className="text-primary">
-          at
-          {" " +
-            props.date.toLocaleDateString() +
-            " " +
-            props.date.getHours() +
-            ":" +
-            props.date.getMinutes()}
-        </p>
+        <p className="text-primary">at {FormatDate(props.date)}</p>
       </span>
       <div>
         {props.publicToString()}

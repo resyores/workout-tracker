@@ -12,7 +12,7 @@ export default function Friends() {
   const [isOpen, setIsOpen] = useState(false);
   const [requestUserName, setRequestUserName] = useState("");
   const [requested, setRequested] = useState(false);
-  const [cookies, _] = useCookies();
+  const [cookies, _] = useCookies(["user", "token"]);
   const [friends, setFriends] = useState([]);
   const [error, setError] = useState({ message: "" });
   useEffect(Start, []);
@@ -21,9 +21,7 @@ export default function Friends() {
     setError({ message: "" });
   };
   function Start() {
-    const token = cookies.token;
-    if (!token) Navigate("/Login", { replace: true });
-    axios.defaults.headers.common["authorization"] = "bearer " + token; // for all requests
+    axios.defaults.headers.common["authorization"] = "bearer " + cookies.token; // for all requests
     axios.get("http://10.0.0.19:4000/friends").then((res) => {
       if (res.status == 200) setFriends(res.data);
     });
@@ -90,7 +88,7 @@ export default function Friends() {
           Invite friend
         </Button>
         <a
-          href="/friends/requests"
+          href="/requests"
           className="btn-outline-warning btn-light btn btn-sml"
         >
           Friend Requests

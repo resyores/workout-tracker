@@ -31,7 +31,7 @@ router.route("/Login").post((req, res) => {
           jwt.sign({ user }, SECRET_KEY, (err, token) => {
             if (err) {
               console.log(err);
-              res.json({ isAuth: false });
+              res.sendStatus(500);
             } else res.json({ isAuth: true, token, user });
           });
         }

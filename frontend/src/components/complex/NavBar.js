@@ -5,12 +5,12 @@ import ImageModal from "./ImageModal";
 
 export default function Navbar({ cookies, logout }) {
   const [isOpen, setIsOpen] = useState(false);
-  const ProfileUrl = `http://10.0.0.19:4000/user/profile/${cookies.user.UserID}`;
+  const ProfileUrl = `http://10.0.0.19:4000/user/${cookies.user.UserID}/profile`;
   const [imageUrl, setImageUrl] = useState(ProfileUrl);
   useEffect(() => setImageUrl(ProfileUrl + "?" + Date.now()), [isOpen]);
 
   return (
-    <nav className="p-3 navbar navbar-dark bg-primary navbar-expand-lg justify-content-between">
+    <nav className="p-3 navbar navbar-dark bg-primary navbar-expand-lg justify-content-between sticky-top">
       <ul className="navbar-nav mr-auto d-flex">
         <Link to="/Home" className="navbar-brand">
           Home
@@ -26,7 +26,7 @@ export default function Navbar({ cookies, logout }) {
           </Link>
         </li>
       </ul>
-      {cookies.user != null && (
+      {cookies.token != null && (
         <>
           <span className="d-flex">
             <div className="d-flex" onClick={() => setIsOpen(true)}>

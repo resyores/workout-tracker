@@ -10,7 +10,7 @@ import { useCookies } from "react-cookie";
 
 export default function SignUp() {
   const Navigate = useNavigate();
-  const [cookies, setCookie] = useCookies();
+  const [cookies, setCookie] = useCookies(["user", "token"]);
   useEffect(CheckIfToken, []);
   const [email, setEmail] = useState("");
   const [username, setUserName] = useState("");

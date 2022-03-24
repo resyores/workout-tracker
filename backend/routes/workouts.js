@@ -7,7 +7,26 @@ const deleteWorkout = require("../WorkoutFunctions/DeleteWorkout");
 const addWorkout = require("../WorkoutFunctions/AddWorkout");
 const SECRET_KEY = process.env.SECRET_KEY;
 router.route("/:id").get(verifyToken, getWorkout);
-
+router.route("/:id/basic").get(verifyToken, (req, res) => {
+  let user;
+  jwt.verify(req.token, SECRET_KEY, (err, authData) => {
+    if (err) return res.sendStatus(401);
+    user = authData.user;
+  });
+  if (!user) return;
+  const WorkoutSql =
+    "Select w.WorkoutId,w.UserId,Title,WorkoutDate,public,count(c.CommentId) as unseen " +
+    "from Workouts w " +
+    "left join comments c on(c.WorkoutId=w.workoutid and c.PostDate>w.userentered and c.CommentorId!=w.userid)" +
+    "where w.workoutid=?";
+  con.query(WorkoutSql, [req.params.id], function (err, result) {
+    if (err) {
+      res.sendStatus(500);
+      console.log(err);
+    } else if (result[0].UserId != user.UserID) res.sendStatus(403);
+    else res.json(result[0]);
+  });
+});
 router.route("/add").post(verifyToken, addWorkout);
 
 router.route("/:id").delete(verifyToken, deleteWorkout);

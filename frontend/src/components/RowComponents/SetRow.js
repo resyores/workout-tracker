@@ -4,7 +4,7 @@ export default function Set({ exerciseName, reps, weight, index }) {
   let colors = ["info", "light"];
   let color = "bg-" + colors[index % colors.length];
   return (
-    <div className="list-group-item rounded  bg-secondary d-flex justify-content-around">
+    <div className="list-group-item rounded  bg-secondary d-flex justify-content-around mt-0">
       <h5
         className={color + " w-50 rounded me-3 d-flex justify-content-center"}
       >

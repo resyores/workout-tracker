@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-export default function useLoader(query, pageNumber, token, targetUrl) {
-  const Navigate = useNavigate();
+export default function useLoader(
+  query,
+  pageNumber,
+  token,
+  targetUrl,
+  reverse
+) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [items, setItems] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   useEffect(Start, []);
+  if (!reverse) reverse = false;
   function Start() {
-    if (!token) Navigate("/Login", { replace: true });
     axios.defaults.headers.common["authorization"] = "bearer " + token;
   }
   useEffect(() => setItems([]), [query]);
@@ -22,6 +26,7 @@ export default function useLoader(query, pageNumber, token, targetUrl) {
       })
       .then((res) => {
         setItems((prevItems) => {
+          if (reverse) return [...new Set([...prevItems, ...res.data])];
           return [...new Set([...prevItems, ...res.data])];
         });
         setHasMore(res.data.length > 0);

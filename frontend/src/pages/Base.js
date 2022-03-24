@@ -4,7 +4,7 @@ import { useCookies } from "react-cookie";
 
 export default function Base() {
   const Navigate = useNavigate();
-  const [cookies, _] = useCookies();
+  const [cookies, _] = useCookies(["user", "token"]);
   useEffect(() => CheckIfToken(), []);
   function CheckIfToken() {
     const token = cookies.token;

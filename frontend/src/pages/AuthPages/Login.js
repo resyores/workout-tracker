@@ -10,7 +10,7 @@ import { useCookies } from "react-cookie";
 
 export default function Login() {
   const Navigate = useNavigate();
-  const [cookies, setCookie] = useCookies();
+  const [cookies, setCookie] = useCookies(["user", "token"]);
   useEffect(CheckIfToken, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,6 +20,7 @@ export default function Login() {
   }
   function CheckIfToken() {
     if (cookies.token) Navigate("/Home", { replace: true });
+    console.log(cookies.token);
   }
   function handleSubmit(event) {
     event.preventDefault();
@@ -27,8 +28,8 @@ export default function Login() {
       .post("http://10.0.0.19:4000/Auth/Login", { email, password })
       .then((res) => {
         if (res.data.isAuth) {
-          setCookie("token", res.data.token, { path: "../" });
-          setCookie("user", res.data.user, { path: "../" });
+          setCookie("token", res.data.token, { path: "/" });
+          setCookie("user", res.data.user, { path: "/" });
           Navigate("/Home", { replace: true });
         }
       })

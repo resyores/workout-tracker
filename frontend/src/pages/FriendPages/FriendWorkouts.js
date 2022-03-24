@@ -3,41 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import axios from "axios";
 import Button from "react-bootstrap/Button";
-import Workout from "../../components/RowComponents/WorkoutRow";
 import FriendRow from "../../components/RowComponents/FriendRow";
 import Modal from "../../components/BaseComponents/Modal";
 import useLoader from "../../Hooks/useLoader";
-import SearchDiv from "../../components/complex/SearchDiv";
+import WorkoutsView from "../../components/complex/WorkoutsView";
 import useObserver from "../../Hooks/useObserver";
 
-const WorkoutsView = ({
-  workouts,
-  query,
-  message,
-  lastWorkoutElementRef,
-  handleSearch,
-}) => {
-  if (workouts.length || query.length)
-    return (
-      <>
-        <SearchDiv handleSearch={handleSearch} query={query} />
-        {workouts.map((workout, index) => {
-          if (workouts.length - 1 == index)
-            return (
-              <span ref={lastWorkoutElementRef}>
-                <Workout workout={workout} mine={false} />
-              </span>
-            );
-          return <Workout workout={workout} mine={false} />;
-        })}
-      </>
-    );
-   return <h2 className="text-muted text-center mt-4">{message}</h2>;
-};
 export default function FriendWorkouts() {
   const Navigate = useNavigate();
   const id = parseInt(window.location.href.split("/")[4]);
-  const [cookies, _] = useCookies();
+  const [cookies, _] = useCookies(["user", "token"]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [friend, setFriend] = useState({});
   const [message, setMessage] = useState("User has no public workouts");
@@ -86,9 +61,7 @@ export default function FriendWorkouts() {
   };
   useEffect(Start, []);
   function Start() {
-    const token = cookies.token;
-    if (!token) Navigate("/Login", { replace: true });
-    axios.defaults.headers.common["authorization"] = "bearer " + token; // for all requests
+    axios.defaults.headers.common["authorization"] = "bearer " + cookies.token; // for all requests
     axios
       .get("http://10.0.0.19:4000/user/" + id + "/userdata")
       .then((res) => {
@@ -133,7 +106,7 @@ export default function FriendWorkouts() {
         <FriendRow friend={{ ...friend, UserId: id }} clickable={false} />
         <ActionButton
           FriendId={id}
-          UserId={cookies.user ? cookies.user.UserID : null}
+          UserId={cookies.user.UserID}
           friend={friend}
           isAuth={isAuth}
         />
