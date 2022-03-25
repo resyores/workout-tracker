@@ -3,7 +3,7 @@ const verifyToken = require("../authScripts/verifyToken");
 const con = require("../dbScripts/connect");
 const jwt = require("jsonwebtoken");
 const { verifyFriend } = require("../authScripts/verifyFriend");
-const { getChatRoom } = require("../socketScripts/commentsSocket");
+const { getChatRoom, sendChatMessage } = require("../socketScripts/MainSocket");
 const SECRET_KEY = process.env.SECRET_KEY;
 const messagesPerPage = 15;
 router.route("/:id").get(verifyToken, (req, res) => {
@@ -73,6 +73,7 @@ router.route("/send/:id").post(verifyToken, (req, res) => {
           res.sendStatus(201);
           const room = getChatRoom(Number(FriendId), Number(UserId));
           if (room) room.sendMessage(FriendId, content, user.username);
+          else sendChatMessage(FriendId, user, content);
         }
       });
     })

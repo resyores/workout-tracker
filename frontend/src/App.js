@@ -1,19 +1,20 @@
 import React, { useEffect } from "react";
-import axios from "axios"
+import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useCookies } from "react-cookie";
 import SignUp from "./pages/AuthPages/SignUp";
 import Login from "./pages/AuthPages/Login";
-import Base from "./pages/Base";
-import Home from "./pages/Home";
-import Create from "./pages/WorkoutPages/Create";
-import Workout from "./pages/WorkoutPages/Workout";
-import FriendWorkouts from "./pages/FriendPages/FriendWorkouts";
-import Friends from "./pages/FriendPages/Friends";
-import Requests from "./pages/FriendPages/Requests";
-import NavBar from "./components/complex/NavBar";
+import Base from "./pages/Extras/Base";
+import Home from "./pages/UserView/pages/Home";
+import FriendWorkouts from "./pages/UserView/pages/FriendWorkouts";
+
+import Create from "./pages/Extras/Create";
+import Workout from "./pages/Workouts/Pages/Workout";
+import Friends from "./pages/Friends/pages/Friends";
+import Requests from "./pages/Friends/pages/Requests";
+import NavBar from "./NavBarComponents/NavBar";
 import { Route, Routes } from "react-router-dom";
-import Messages from "./pages/FriendPages/Messages";
+import Messages from "./pages/Friends/pages/Messages";
 import { useNavigate } from "react-router-dom";
 function App() {
   const Navigate = useNavigate();
@@ -25,7 +26,7 @@ function App() {
       if (path == "signin" || path == "login") {
         Navigate("/Home", { replace: true });
       }
-    } else if ((path != "signin" && path != "login") || subPaths.length != 4) {
+    } else if ((path != "signup" && path != "login") || subPaths.length != 4) {
       logout();
     }
   });
@@ -41,7 +42,7 @@ function App() {
       )}
       <Routes>
         <Route exact path="/Login" element={<Login />} />
-        <Route exact path="/SiggnUp" element={<SignUp />} />
+        <Route exact path="/SignUp" element={<SignUp />} />
         <Route exact path="/" element={<Base />} />
         <Route exact path="/home" element={<Home />} />
 
@@ -51,7 +52,7 @@ function App() {
         <Route exact path="/friends" element={<Friends />} />
         <Route exact path="/requests" element={<Requests />} />
         <Route exact path="/friends/:id" element={<FriendWorkouts />} />
-        <Route exact path="/messages/:id" element={<Messages/>}/> 
+        <Route exact path="/messages/:id" element={<Messages />} />
       </Routes>
     </div>
   );

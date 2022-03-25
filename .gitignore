@@ -5,7 +5,9 @@
 /frontend/node_modules
 /backend/.vscode
 /.vscode
+/.vscode
 /.pnp
+/backend/.prettierrc
 .pnp.js
 
 # testing

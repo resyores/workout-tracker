@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import Field from "../../components/BaseComponents/Field";
-import Modal from "../../components/BaseComponents/Modal";
+import Field from "../../BaseComponents/Field";
+import Modal from "../../BaseComponents/Modal";
 import { Link, useNavigate } from "react-router-dom";
 import "../../css/form.css";
 import axios from "axios";

@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
   filename: function (req, file, cb) {
     jwt.verify(req.token, SECRET_KEY, (err, authData) => {
       if (!whitelist.includes(file.mimetype)) return;
-      cb(null, "" + authData.user.UserID + ".jpg");
+      cb(null, authData.user.UserID + ".jpg");
     });
   },
 });

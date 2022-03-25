@@ -20,9 +20,7 @@ function getWorkout(req, res) {
     "join exercises using(ExerciseId) where WorkoutId=?";
   const SetsSql = "SELECT * FROM sets where ExerSetId in (?)";
   const UserSql = "Select UserName from Users Where UserId=?";
-  const CommentSql =
-    "SELECT CommentId,Content,UserId,UserName,PostDate FROM Comments c join users u " +
-    "on u.UserId=c.CommentorId where c.WorkoutId=? order by CommentId desc";
+  
   let public, title, userId, date, userName;
   const workoutPromise = new Promise((resolve) => {
     con.query(WorkoutSql, [workoutID], (err, result) => {
@@ -78,20 +76,13 @@ function getWorkout(req, res) {
                     }),
                 };
               });
-
-              con.query(CommentSql, [workoutID], function (err, result3) {
-                if (err) {
-                  console.log(err);
-                  return res.sendStatus(500);
-                }
                 res.json({
                   username: userName,
                   public,
                   date,
                   title,
-                  comments: result3,
                   exersets: exerSets,
-                });
+                
               });
             }
           );
