@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect,useState } from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import { useCookies } from "react-cookie";
 import SignUp from "./pages/AuthPages/SignUp";
 import Login from "./pages/AuthPages/Login";
@@ -19,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 function App() {
   const Navigate = useNavigate();
   const [cookies, _, removeCookies] = useCookies(["user", "token"]);
+  const [workoutUpdated, setWorkoutUpdated] = useState(null);
   useEffect(() => {
     const subPaths = window.location.href.split("/");
     const path = subPaths[3].toLowerCase();
@@ -38,13 +40,26 @@ function App() {
   return (
     <div className="container">
       {cookies.user && cookies.token && (
-        <NavBar cookies={cookies} logout={logout} />
+        <NavBar
+          cookies={cookies}
+          logout={logout}
+          setWorkoutUpdated={setWorkoutUpdated}
+        />
       )}
       <Routes>
         <Route exact path="/Login" element={<Login />} />
         <Route exact path="/SignUp" element={<SignUp />} />
         <Route exact path="/" element={<Base />} />
-        <Route exact path="/home" element={<Home />} />
+        <Route
+          exact
+          path="/home"
+          element={
+            <Home
+              setWorkoutUpdated={setWorkoutUpdated}
+              workoutUpdated={workoutUpdated}
+            />
+          }
+        />
 
         <Route exact path="/workouts/create" element={<Create />} />
 

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EmptyPicture from "../../../logos/profile.jpg";
 import messagePicture from "../../../logos/message.png";
-export default function Workout({ friend, clickable }) {
+export default function Workout({ friend, clickable,isNotFriend }) {
   const Navigate = useNavigate();
   const ProfileUrl = `http://10.0.0.19:4000/user/${friend.UserId}/profile`;
   const [imageUrl, setImageUrl] = useState(ProfileUrl);
@@ -26,11 +26,12 @@ export default function Workout({ friend, clickable }) {
         <p>{friend.Email}</p>
       </div>
       <div className="ms-auto me-0">
-        {!clickable && (
-          <a href={"/messages/" + friend.UserId}>
-            <img width={60} height={60} src={messagePicture} />
-          </a>
-        )}
+        {!clickable &&
+          !isNotFriend&&(
+            <a href={"/messages/" + friend.UserId}>
+              <img width={60} height={60} src={messagePicture} />
+            </a>
+          )}
       </div>
     </div>
   );

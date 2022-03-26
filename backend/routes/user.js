@@ -14,13 +14,11 @@ const storage = multer.diskStorage({
     cb(null, "./upload/profiles");
   },
   filename: function (req, file, cb) {
-    jwt.verify(req.token, SECRET_KEY, (err, authData) => {
-      if (!whitelist.includes(file.mimetype)) return;
-      cb(null, authData.user.UserID + ".jpg");
-    });
+    if (!whitelist.includes(file.mimetype)) cb("error");
+    else cb(null, req.UserID + ".jpg");
   },
 });
-const upload = multer({ storage });
+const upload = multer({ storage }).single("ProfilePicture");
 const SECRET_KEY = process.env.SECRET_KEY;
 router.route("/:id/workouts").get(verifyToken, (req, res) => {
   let query = "%" + req.query.q + "%";
@@ -117,17 +115,16 @@ router.route("/:id/userdata").get(verifyToken, (req, res) => {
       console.log(err);
     });
 });
-router
-  .route("/addPicture")
-  .post(verifyToken, upload.single("ProfilePicture"), (req, res) => {
-    let user;
-    jwt.verify(req.token, SECRET_KEY, (err, authData) => {
-      if (err) return res.sendStatus(401);
-      user = authData.user;
+router.route("/addPicture").post(verifyToken, (req, res) => {
+  jwt.verify(req.token, SECRET_KEY, (err, authData) => {
+    if (err) return res.sendStatus(401);
+    req.UserID = authData.user.UserID;
+    upload(req, res, (err) => {
+      if (err) res.sendStatus(400);
+      else res.sendStatus(200);
     });
-    if (!user) return;
-    res.sendStatus(200);
   });
+});
 router.route("/:id/profile").get((req, res) => {
   const options = {
     root: path.join(__dirname, "../"),

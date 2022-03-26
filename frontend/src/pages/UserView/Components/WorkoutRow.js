@@ -36,7 +36,6 @@ export default function Workout({ workout, mine, functions }) {
             {publicToChangeString(workout.public)}
           </Button>
           <Button
-            size="lg"
             onClick={deleteThis}
             className="rounded-circle btn-sm btn h-25  mt-4 btn-light btn-outline-danger"
           >

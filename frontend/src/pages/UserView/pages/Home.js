@@ -6,7 +6,7 @@ import useObserver from "../../../Hooks/useObserver";
 import WorkoutsView from "../Components/WorkoutsView";
 import io from "socket.io-client";
 import Toast from "react-bootstrap/Toast";
-export default function Home() {
+export default function Home({ workoutUpdated, setWorkoutUpdated }) {
   const [cookies, _] = useCookies(["user", "token"]);
   const [query, setQuery] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
@@ -23,16 +23,13 @@ export default function Home() {
     setItems: setWorkouts,
   } = useLoader(query, pageNumber, cookies.token, targetUrl);
   const lastWorkoutElementRef = useObserver(loading, hasMore, setPageNumber);
-  useEffect(Start, []);
-  let socket;
-  function AlertWorkout(workout, sender, content) {
-    setToastData({
-      from: sender.UserName + " commented at " + workout.Title,
-      content,
-      link: "/workouts/" + workout.WorkoutId,
-    });
-    setShow(true);
-    console.log(workout);
+  useEffect(() => {
+    if (workoutUpdated != null) {
+      UpdateWorkout(workoutUpdated);
+      setWorkoutUpdated(null);
+    }
+  }, [workoutUpdated]);
+  function UpdateWorkout(workout) {
     setWorkouts((prevWorkouts) => {
       return [
         workout,
@@ -40,34 +37,6 @@ export default function Home() {
           (currworkout) => currworkout.WorkoutId != workout.WorkoutId
         ),
       ];
-    });
-  }
-  function Start() {
-    axios.defaults.headers.common["authorization"] = "bearer " + cookies.token;
-    socket = io.connect("http://10.0.0.19:4001");
-    socket.emit("new-user", cookies.token);
-    socket.on("new-comment", (WorkoutId, sender, content) => {
-      let workout = workouts.filter((w) => w.WorkoutId == WorkoutId)[0];
-      if (workout) {
-        workout.unseen++;
-        AlertWorkout(workout, sender, content);
-      } else {
-        axios
-          .get(`http://10.0.0.19:4000/workouts/${WorkoutId}/basic`)
-          .then((res) => {
-            workout = res.data;
-            workout.WorkoutId = WorkoutId;
-            AlertWorkout(workout, sender, content);
-          });
-      }
-    });
-    socket.on("new-message", (UserId, username, message) => {
-      setToastData({
-        from: username + ":",
-        content: message,
-        link: "/messages/" + UserId,
-      });
-      setShow(true);
     });
   }
   function handleSearch(event) {

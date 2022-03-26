@@ -9,6 +9,7 @@
 /.pnp
 /backend/.prettierrc
 .pnp.js
+/backend/upload
 
 # testing
 /coverage

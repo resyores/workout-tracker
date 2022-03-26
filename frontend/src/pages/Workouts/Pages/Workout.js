@@ -9,7 +9,7 @@ import io from "socket.io-client";
 import SetsView from "../Components/SetsView";
 import useLoader from "../../../Hooks/useLoader";
 import useObserver from "../../../Hooks/useObserver";
-import ImageModal from "../../../BaseComponents/ImageModal";
+import InputVideo from "../Components/InputVideo";
 export default function Workout() {
   const id = parseInt(window.location.href.split("/")[4]);
   const Navigate = useNavigate();
@@ -22,7 +22,7 @@ export default function Workout() {
   const [isCommentOpen, setIsCommentOpen] = useState(false);
   const [pageNumber, setPageNumber] = useState(1);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
-  const [currSetNum, setCurrSetNum] = useState(1);
+  const [currSetNum, setCurrSetNum] = useState(-1);
   let socket;
   let targetUrl = cookies.user
     ? "http://10.0.0.19:4000/comment/" + id
@@ -45,12 +45,27 @@ export default function Workout() {
   useEffect(() => {
     axios.defaults.headers.common["authorization"] = "bearer " + cookies.token;
   }, []);
+  useEffect(() => {
+    if (currSetNum != -1) setIsVideoOpen(true);
+  }, [currSetNum]);
+  useEffect(() => {
+    if (!isVideoOpen) setCurrSetNum(-1);
+  }, [isVideoOpen]);
   function upload(File) {
+    if (!File) return;
     const formData = new FormData();
     formData.append("video", File);
     axios
       .post(`http://10.0.0.19:4000/SetVideo/${id}/${currSetNum}`, formData)
-      .then((res) => setIsVideoOpen(false));
+      .then((res) => {
+        setCurrSetNum(-1);
+        setIsVideoOpen(false);
+        window.location.reload(false);
+      })
+      .catch((err) => {
+        setCurrSetNum(-1);
+        setIsVideoOpen(false);
+      });
   }
   useEffect(Start, []);
   function Start() {
@@ -60,9 +75,18 @@ export default function Workout() {
     axios
       .get("http://10.0.0.19:4000/workouts/" + id)
       .then((res) => {
+        let index = -1;
         setWorkout([
           ...res.data.exersets.map((exerSet) => {
-            return { ...exerSet, size: Math.min(3, exerSet.sets.length) * 50 };
+            let newExerSet = exerSet;
+            newExerSet.sets = newExerSet.sets.map((set) => {
+              index++;
+              return { ...set, index: index };
+            });
+            return {
+              ...newExerSet,
+              size: Math.min(3, exerSet.sets.length) * 50,
+            };
           }),
         ]);
         setTitle(res.data.title);
@@ -112,18 +136,19 @@ export default function Workout() {
           onClickCommentsButton,
         }}
       />
-      <ImageModal
+      <InputVideo
         isOpen={isVideoOpen}
         setIsOpen={setIsVideoOpen}
-        currentFile=""
         upload={upload}
-        fileType="video/*"
       />
       <div className="d-flex">
         <SetsView
           isCommentOpen={isCommentOpen}
           workout={workout}
           setCurrSetNum={setCurrSetNum}
+          WorkoutId={id}
+          token={cookies.token}
+          isCreator={userName == cookies.user.username}
         />
         {isCommentOpen && (
           <span className="w-50">

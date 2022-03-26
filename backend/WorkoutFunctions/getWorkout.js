@@ -20,7 +20,7 @@ function getWorkout(req, res) {
     "join exercises using(ExerciseId) where WorkoutId=?";
   const SetsSql = "SELECT * FROM sets where ExerSetId in (?)";
   const UserSql = "Select UserName from Users Where UserId=?";
-  
+
   let public, title, userId, date, userName;
   const workoutPromise = new Promise((resolve) => {
     con.query(WorkoutSql, [workoutID], (err, result) => {
@@ -72,17 +72,20 @@ function getWorkout(req, res) {
                   sets: result2
                     .filter((set) => set.ExerSetId == exerSet.ExerSetId)
                     .map((set) => {
-                      return { reps: set.Reps, weight: set.Weight };
+                      return {
+                        reps: set.Reps,
+                        weight: set.Weight,
+                        videoexist: set.VideoExist,
+                      };
                     }),
                 };
               });
-                res.json({
-                  username: userName,
-                  public,
-                  date,
-                  title,
-                  exersets: exerSets,
-                
+              res.json({
+                username: userName,
+                public,
+                date,
+                title,
+                exersets: exerSets,
               });
             }
           );

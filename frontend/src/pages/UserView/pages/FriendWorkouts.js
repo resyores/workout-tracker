@@ -103,7 +103,7 @@ export default function FriendWorkouts() {
         <Modal open={isModalOpen}>
           <h2 className="text-success text-center mt-4">Requested</h2>
         </Modal>
-        <FriendRow friend={{ ...friend, UserId: id }} clickable={false} />
+        <FriendRow friend={{ ...friend, UserId: id }} clickable={false} isNotFriend={!isAuth}/>
         <ActionButton
           FriendId={id}
           UserId={cookies.user.UserID}
